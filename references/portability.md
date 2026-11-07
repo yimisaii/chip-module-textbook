@@ -35,3 +35,21 @@
 | IDE、芯片目标编译及板上测量 | 按各样例的 IDE 和 SDK 说明使用实际支持的环境。Keil MDK 5 案例的 µVision 命令面向 Windows。CCS、Pico SDK 的构建与调试条件见各自资料卡和工程说明。实板测量需相应板卡及调试或测量设备。 |
 
 通用示例命令以 Skill 根目录为工作目录，目标工程命令按工程说明定位。依赖缺失时可用现有工具完成资料核对与文稿工作，交付记录明确列出做过的检查及待测项。
+
+## 重建 Word 样章
+
+Markdown 与 C 源码是样章的编辑入口。`@code` 标记指向相对于章稿目录的 C 文件和源码锚点，Word 构建时从锚点之间提取。图示以 SVG 编辑、以同名 PNG 排版。安装上述 Word 排版依赖后，从 Skill 根目录运行：
+
+```sh
+node scripts/rasterize_figures.cjs build/figures examples/rp2040-dma/figures/dma-data-path.svg examples/rp2040-dma/figures/dma-experiment-flow.svg
+python -X utf8 scripts/build_chapter.py examples/rp2040-dma/chapter.md examples/rp2040-dma/chapter.docx --figure-png-dir build/figures
+```
+
+重建 ESP32-C3 样章使用它自己的四张图：
+
+```sh
+node scripts/rasterize_figures.cjs build/figures examples/esp32c3-ledc/figures/architecture.svg examples/esp32c3-ledc/figures/waveforms.svg examples/esp32c3-ledc/figures/update-flow.svg examples/esp32c3-ledc/figures/wiring.svg
+python -X utf8 scripts/build_chapter.py examples/esp32c3-ledc/chapter.md examples/esp32c3-ledc/chapter.docx --figure-png-dir build/figures
+```
+
+更改代码、图和实验参数后重建 Word，再以最终分页复查相应页面。README 的[成果预览](../README.md#样章成果)来自已交付 Word 的实际渲染页，PNG 仅用于展示；编辑入口仍是 Markdown、C 和 SVG。

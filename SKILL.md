@@ -29,4 +29,5 @@ description: Design MCU or DSP peripheral firmware and write or revise a chip-sp
 - 用[ESP32-C3 LEDC 样章](examples/esp32c3-ledc/chapter.md)对照从时钟推导、位域与驱动映射、基础实验到应用的组织方式。
 - TI C28x 读[F28335 ePWM 与 CCS 工程导读](references/platforms/f28335/epwm/guide.md)。
 - 查以往返工条件与复查办法读[问题卡](references/failure-cards.md)。
+- 接入自有 PDF、私有资料卡或外部 RAG 时读[资料检索与接入](references/retrieval.md)。
 - 新章采用[教材源稿模板](assets/chapter-template.md)和[通用 SVG 图示模板](assets/peripheral-diagram.svg)。
