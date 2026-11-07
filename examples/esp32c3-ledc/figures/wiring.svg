@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="280" viewBox="0 0 1000 280" role="img" aria-labelledby="title desc">
+  <title id="title">ESP32-C3 DevKitM-1 外接 LED 接线</title>
+  <desc id="desc">J3 第十一脚 GPIO4 串联 470 欧姆电阻和红色 LED，LED 阴极返回 J3 第十二脚地。示波器测点位于 GPIO4。</desc>
+  <defs><marker id="light" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#222"/></marker></defs>
+  <rect width="1000" height="280" fill="white"/>
+  <g stroke="#222" stroke-width="2.5" fill="none">
+    <rect x="23" y="45" width="273" height="190" rx="8" fill="#f4f4f4"/>
+    <path d="M296 103H436M562 103H648M715 103H912V191H296"/>
+    <rect x="436" y="88" width="126" height="30"/>
+    <path d="M648 77V129L700 103Z" fill="#eee"/><path d="M700 78V128M700 103H715"/>
+    <path d="M675 69L695 48M693 77L713 56" marker-end="url(#light)"/>
+    <path d="M370 103V153"/><circle cx="370" cy="103" r="5" fill="#222"/>
+  </g>
+  <g font-family="'Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="24" text-anchor="middle" fill="#222">
+    <text x="159" y="79">ESP32-C3-DevKitM-1</text>
+    <text x="159" y="118">J3-11 · GPIO4</text>
+    <text x="159" y="201">J3-12 · GND</text>
+    <text x="499" y="74">470 Ω</text><text x="679" y="158">红色 LED</text>
+    <text x="600" y="135" font-size="20">阳极</text><text x="755" y="135" font-size="20">阴极</text>
+    <text x="370" y="180" font-size="20">探头尖端</text>
+    <text x="500" y="264" font-size="20">板卡由 USB 供电。测量时，探头地接同一个 GND。</text>
+  </g>
+</svg>

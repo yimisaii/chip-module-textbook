@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="462" viewBox="0 0 1060 462" role="img" aria-labelledby="title desc">
+  <title id="title">从按键到蓝灯的信号路径</title>
+  <desc id="desc">B1 通过板载网络接到 PC13。上升沿和下降沿通过 EXTI13 触发中断，主循环读 PC13 并根据最后边沿时间做消抖。确认按下时翻转 PB7。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="8" refY="5" orient="auto" viewBox="0 0 10 10">
+      <path d="M0 0L10 5L0 10Z" fill="#222"/>
+    </marker>
+  </defs>
+  <rect width="1060" height="462" fill="white"/>
+  <g font-family="'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif" fill="#202020">
+    <g font-size="20" font-weight="bold">
+      <text x="30" y="38">板上信号</text><text x="335" y="38">芯片内部</text><text x="743" y="38">程序</text>
+    </g>
+    <g fill="#f2f2f2" stroke="#222" stroke-width="2">
+      <rect x="30" y="65" width="238" height="90" rx="7"/>
+      <rect x="334" y="65" width="158" height="90" rx="7"/>
+      <rect x="546" y="65" width="145" height="90" rx="7"/>
+      <rect x="745" y="65" width="285" height="90" rx="7"/>
+      <rect x="745" y="239" width="285" height="92" rx="7"/>
+      <rect x="334" y="239" width="196" height="92" rx="7"/>
+      <rect x="30" y="239" width="238" height="92" rx="7"/>
+    </g>
+    <g text-anchor="middle" font-size="20">
+      <text x="149" y="100">B1 → 板载 RC 网络</text><text x="149" y="130">松开低 · 按下高</text>
+      <text x="413" y="100">PC13 输入</text><text x="413" y="130">内部下拉</text>
+      <text x="619" y="100">EXTI13</text><text x="619" y="130">检测双边沿</text>
+      <text x="888" y="100">EXTI13 中断</text><text x="888" y="130">清标志并记时间戳（ms）</text>
+      <text x="888" y="277">主循环</text><text x="888" y="307">确认电平及稳定时间</text>
+      <text x="432" y="277">PB7 输出</text><text x="432" y="307">翻转电平</text>
+      <text x="149" y="277">LD2 蓝灯</text><text x="149" y="307">高电平亮</text>
+    </g>
+    <g fill="none" stroke="#222" stroke-width="2" marker-end="url(#arrow)">
+      <path d="M268 109H330"/><path d="M492 109H542"/><path d="M691 109H741"/>
+      <path d="M888 155V235" stroke-dasharray="7 4"/>
+      <path d="M413 155V205H797V235"/>
+      <path d="M745 285H535"/><path d="M334 285H273"/>
+    </g>
+    <g font-size="17">
+      <text x="701" y="96">IRQ</text><text x="464" y="191">读 GPIOC_IDR 位 13</text>
+      <text x="550" y="272">确认按下后翻转</text>
+      <text x="30" y="379">实线表示电平、请求或输出的方向。虚线表示中断向主循环交接时间戳。</text>
+      <text x="30" y="412">默认 VDD_MCU 为 3.3 V。逻辑高低用板上供电作参考。</text>
+      <text x="30" y="442" font-size="16">原理示意 · NUCLEO-U575ZI-Q（MB1549），B1 默认接 PC13，SB58 通、SB59 断</text>
+    </g>
+  </g>
+</svg>

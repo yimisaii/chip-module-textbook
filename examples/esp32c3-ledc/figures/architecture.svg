@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="290" viewBox="0 0 1000 290" role="img" aria-labelledby="title desc">
+  <title id="title">ESP32-C3 LEDC 时钟与输出路径</title>
+  <desc id="desc">40 MHz 晶振经分频驱动定时器。通道以定时器计数为基准产生 PWM，经 GPIO 矩阵送到 GPIO4。</desc>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#222"/></marker></defs>
+  <rect width="1000" height="290" fill="white"/>
+  <rect x="191" y="96" width="590" height="153" rx="10" fill="none" stroke="#666" stroke-width="2" stroke-dasharray="7 5"/>
+  <g stroke="#222" stroke-width="2" fill="#f4f4f4">
+    <rect x="22" y="146" width="142" height="78" rx="8"/>
+    <rect x="220" y="146" width="158" height="78" rx="8"/>
+    <rect x="435" y="146" width="158" height="78" rx="8"/>
+    <rect x="652" y="146" width="104" height="78" rx="8"/>
+    <rect x="810" y="146" width="167" height="78" rx="8"/>
+    <rect x="373" y="16" width="261" height="52" rx="8"/>
+  </g>
+  <g stroke="#222" stroke-width="2.5" fill="none" marker-end="url(#a)">
+    <path d="M164 185H215"/><path d="M378 185H430"/><path d="M593 185H647"/><path d="M756 185H805"/>
+    <path d="M450 68V82H299V141" stroke-dasharray="6 4"/>
+    <path d="M560 68V82H704V141" stroke-dasharray="6 4"/>
+  </g>
+  <g font-family="'Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="24" text-anchor="middle" fill="#222">
+    <text x="504" y="50">CPU 通过 ESP-IDF 配置</text>
+    <text x="93" y="178">XTAL</text><text x="93" y="206">40 MHz</text>
+    <text x="299" y="178">时钟分频</text><text x="299" y="206">39.0625</text>
+    <text x="514" y="178">定时器 0</text><text x="514" y="206">0～1023</text>
+    <text x="704" y="178">通道 0</text><text x="704" y="206">PWM</text>
+    <text x="894" y="178">GPIO 矩阵</text><text x="894" y="206">至 GPIO4</text>
+    <text x="498" y="124" font-size="21">LEDC 低速组</text>
+    <text x="500" y="278" font-size="20">实线为时钟、计数或输出信号，虚线为软件配置。原理示意。</text>
+  </g>
+</svg>

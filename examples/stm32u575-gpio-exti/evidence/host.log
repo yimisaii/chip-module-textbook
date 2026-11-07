@@ -1,0 +1,10 @@
+PASS XML, 10 source paths, 4 include paths, scatter and vector symbols
+gcc.exe (GCC) 13.1.0
+x86_64-w64-mingw32
+PASS C syntax against the bundled HAL1 and CMSIS headers (9 translation units)
+PASS bouncing press and exact 19/20 tick threshold
+PASS held press does not repeat
+PASS bouncing release, rearm and second press
+PASS short high pulse rejected
+PASS held at startup does not count as a press
+PASS unsigned tick rollover

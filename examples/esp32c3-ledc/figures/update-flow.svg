@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="360" viewBox="0 0 1000 360" role="img" aria-labelledby="title desc">
+  <title id="title">LEDC 占空比的写入与生效</title>
+  <desc id="desc">软件检查输入，合法值写入驱动并请求更新。硬件在周期边界使用新值。非法输入直接返回，保留当前档位。</desc>
+  <defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10Z" fill="#222"/></marker></defs>
+  <rect width="1000" height="360" fill="white"/>
+  <g stroke="#222" stroke-width="2" fill="#f4f4f4">
+    <rect x="65" y="44" width="243" height="67" rx="8"/>
+    <rect x="377" y="44" width="243" height="67" rx="8"/>
+    <rect x="692" y="44" width="243" height="67" rx="8"/>
+    <rect x="65" y="205" width="243" height="67" rx="8"/>
+    <rect x="692" y="205" width="243" height="67" rx="8"/>
+  </g>
+  <g stroke="#222" stroke-width="2.5" fill="none" marker-end="url(#a)">
+    <path d="M308 77H372"/><path d="M620 77H687"/>
+    <path d="M186 111V200"/><path d="M813 111V200"/>
+  </g>
+  <g font-family="'Microsoft YaHei','Noto Sans CJK SC',sans-serif" text-anchor="middle" fill="#222" font-size="24">
+    <text x="187" y="86">检查 d ≤ 1023</text>
+    <text x="498" y="86">写入占空比</text>
+    <text x="813" y="86">请求硬件更新</text>
+    <text x="187" y="247">拒绝，保留当前状态</text>
+    <text x="813" y="247">周期边界生效</text>
+    <text x="341" y="64" font-size="18">通过</text><text x="234" y="160" font-size="19">超界</text>
+    <text x="500" y="328" font-size="20">任务每隔约 2 s 切换档位，定时器持续生成 1 kHz PWM。原理示意。</text>
+  </g>
+</svg>

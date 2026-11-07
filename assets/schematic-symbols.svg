@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="480" height="112" viewBox="0 0 480 112" role="img" aria-labelledby="title">
+  <title id="title">教学框图中的时钟 事件 存储和探针图标</title>
+  <rect width="480" height="112" fill="#fff"/>
+  <g fill="none" stroke="#222" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <path id="clock" d="M32 62 h12 v-26 h16 v26 h16 v-26 h12"/>
+    <path id="event" d="M150 62 h20 l8-26 8 26 h24"/>
+    <g id="memory"><rect x="276" y="34" width="48" height="32" rx="3"/><path d="M276 45 h48 m-48 10 h48"/></g>
+    <g id="probe"><circle cx="414" cy="44" r="14"/><path d="M424 54 l16 16"/></g>
+  </g>
+  <g fill="#222" text-anchor="middle" font-family="'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif" font-size="16">
+    <text x="60" y="96">时钟</text><text x="180" y="96">事件</text>
+    <text x="300" y="96">存储</text><text x="420" y="96">观察点</text>
+  </g>
+</svg>

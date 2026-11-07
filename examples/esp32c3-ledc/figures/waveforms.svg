@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="360" viewBox="0 0 1000 360" role="img" aria-labelledby="title desc">
+  <title id="title">周期相同的两种 PWM 波形</title>
+  <desc id="desc">每周期 1 ms。25% 时高电平持续 250 微秒，75% 时持续 750 微秒。两路曲线表示同一引脚在不同时段的预期波形。</desc>
+  <rect width="1000" height="360" fill="white"/>
+  <g stroke="#b1b1b1" stroke-width="2" stroke-dasharray="6 5">
+    <path d="M220 57V291"/><path d="M560 57V291"/><path d="M900 57V291"/>
+  </g>
+  <g stroke="#222" fill="none" stroke-width="4" stroke-linejoin="round">
+    <path d="M200 141H220V92H305V141H560V92H645V141H900"/>
+    <path d="M200 246H220V197H475V246H560V197H815V246H900"/>
+  </g>
+  <g stroke="#222" stroke-width="2" fill="none">
+    <path d="M220 71V59M220 65H305M305 71V59"/>
+    <path d="M220 184V172M220 178H475M475 184V172"/>
+    <path d="M210 291H922L911 285M922 291L911 297"/>
+    <path d="M220 285V297M560 285V297M900 285V297"/>
+  </g>
+  <g font-family="'Microsoft YaHei','Noto Sans CJK SC',sans-serif" font-size="24" fill="#222">
+    <text x="30" y="105">25% 占空比</text><text x="30" y="139">d = 256</text>
+    <text x="30" y="210">75% 占空比</text><text x="30" y="244">d = 768</text>
+    <g text-anchor="middle">
+      <text x="262" y="51">250 μs</text><text x="347" y="168">750 μs</text>
+      <text x="220" y="322">0</text><text x="560" y="322">1</text><text x="900" y="322">2</text>
+      <text x="500" y="351" font-size="19">同一 GPIO 在两个稳定档位的理论波形，时间单位为 ms。</text>
+    </g>
+  </g>
+</svg>

@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1060" height="488" viewBox="0 0 1060 488" role="img" aria-labelledby="title desc">
+  <title id="title">双边沿消抖时序</title>
+  <desc id="desc">PC13 在 10、12、16 毫秒出现按下抖动，在 36 毫秒确认按下并翻转 LED。释放抖动在 45、48、51 毫秒出现，在 71 毫秒确认释放，LED 保持。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="7" markerHeight="7" refX="8" refY="5" orient="auto" viewBox="0 0 10 10">
+      <path d="M0 0L10 5L0 10Z" fill="#222"/>
+    </marker>
+  </defs>
+  <rect width="1060" height="488" fill="white"/>
+  <g font-family="'Microsoft YaHei', 'Noto Sans CJK SC', sans-serif" fill="#222">
+    <g font-size="20">
+      <text x="30" y="30" font-weight="bold">一组供计算的边沿时刻</text>
+      <text x="30" y="98">PC13 原始电平</text>
+      <text x="30" y="198">稳定电平</text>
+      <text x="30" y="270">PB7 输出电平</text>
+      <text x="185" y="73">H</text><text x="185" y="119">L</text>
+      <text x="185" y="179">H</text><text x="185" y="225">L</text>
+      <text x="185" y="251">H</text><text x="185" y="297">L</text>
+    </g>
+    <g fill="none" stroke="#888" stroke-width="1" stroke-dasharray="5 4">
+      <path d="M390 47V380M590 47V380M740 47V380M940 47V380"/>
+    </g>
+    <g fill="none" stroke="#222" stroke-width="3" stroke-linejoin="round">
+      <path d="M230 112H330V66H350V112H390V66H680V112H710V66H740V112H1010"/>
+      <path d="M230 218H590V172H940V218H1010"/>
+      <path d="M230 290H590V244H1010"/>
+    </g>
+    <g stroke="#222" fill="none" stroke-width="1.5">
+      <path d="M230 380H1018" marker-end="url(#arrow)"/>
+      <path d="M230 375V385M330 375V385M350 375V385M390 375V385M590 375V385M680 375V385M710 375V385M740 375V385M940 375V385"/>
+      <path d="M390 340H588" marker-end="url(#arrow)"/>
+      <path d="M740 340H938" marker-end="url(#arrow)"/>
+    </g>
+    <g font-size="16" text-anchor="middle">
+      <text x="230" y="408">0</text><text x="326" y="408">10</text><text x="355" y="408">12</text>
+      <text x="390" y="408">16</text><text x="590" y="408">36</text>
+      <text x="680" y="408">45</text><text x="710" y="408">48</text><text x="740" y="408">51</text>
+      <text x="940" y="408">71</text>
+      <text x="490" y="328">20 个 tick</text><text x="840" y="328">20 个 tick</text>
+      <text x="602" y="151" text-anchor="start">确认按下</text><text x="927" y="151" text-anchor="end">确认释放</text>
+    </g>
+    <text x="1020" y="408" font-size="16" text-anchor="end">t / ms</text>
+    <text x="30" y="453" font-size="17">时序示意 · 边沿时刻为设定值。H 为逻辑高，L 为逻辑低。</text>
+  </g>
+</svg>

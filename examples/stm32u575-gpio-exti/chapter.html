@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="zh-CN" xml:lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc 3.10" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>STM32U575 GPIO 按键中断与消抖</title>
+  <style>
+    /* Default styles provided by pandoc.
+    ** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+    */
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 52rem;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    svg {
+      height: auto;
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      white-space: pre-wrap;
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      border: none;
+      border-top: 1px solid #1a1a1a;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: 1.5em;}
+    div.column{flex: auto;}
+    @media screen {
+    div.columns{gap: min(4vw, 1.5em);}
+    div.column{overflow-x: auto;}
+    }
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    html { -webkit-text-size-adjust: 100%; }
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+</head>
+<body>
+<h1 id="stm32u575-gpio-按键中断与消抖">STM32U575 GPIO
+按键中断与消抖</h1>
+<p>按一下 B1，蓝灯 LD2 翻转一次。一直按住或松开，灯保持原状。学过 C
+的变量、函数和
+<code>if</code>，就可以用这个实验追踪一次按压如何从引脚变成软件事件，并用调试器说明为什么回调次数可能多于按压次数。</p>
+<h2 id="从-b1-到-ld2">1 从 B1 到 LD2</h2>
+<p>本章选用 NUCLEO-U575ZI-Q（MB1549），目标芯片 STM32U575ZIT6Q，LQFP144
+SMPS 封装。采用出厂 3.3 V 配置，SB58 导通、SB59 断开。蓝色 B1 默认接
+PC13，松开为低，按下为高。蓝灯 LD2 由 PB7 驱动，PB7 为高时点亮。黑色 B2
+用于复位。芯片的 PC13、PB7 分别为封装第 7、136
+脚。实验板未接入当前验证环境，实物版本、焊桥和供电要在上板时核对。</p>
+<figure>
+<img src="figures/signal-path.svg"
+alt="图 1 按键中断与 LED 信号路径（原理示意）" />
+<figcaption aria-hidden="true">图 1 按键中断与 LED
+信号路径（原理示意）</figcaption>
+</figure>
+<p>B1 的板载滤波网络包含 330 Ω 串联电阻 R39、100 kΩ 下拉电阻 R38 和 100
+nF 电容 C84。GPIOC
+的内部下拉也参与电路。触点闭合或断开时可能短暂反复接触，RC
+网络会改变芯片引脚上看到的边沿。板上一次按压只见到一次上升沿也符合预期。PC13
+始终配置为带下拉的输入。</p>
+<p>PC13 的电平可由 GPIOC 的 <code>IDR</code> 读出。它还接到 EXTI13
+的输入选择器。EXTI13 可从若干端口中选一个编号为 13 的引脚，本章选择端口
+C。上升沿和下降沿分别置位各自的挂起位，再经中断屏蔽位和 NVIC 送到
+CPU。NVIC 是内核的中断控制器。<code>EXTI13_IRQHandler</code>
+是启动向量表给 EXTI13 留的入口名。</p>
+<h2 id="由边沿确认按压">2 由边沿确认按压</h2>
+<p>边沿描述电平刚刚变化。程序确认的是在一定时间后仍保持的新电平。两种边沿都记录时间戳，每次新边沿重新开始等待。满
+20 个 tick
+后，主循环读到的电平若与已确认电平不同，就接受新电平。低变高时翻灯并计数，高变低时重新准备接收下一次按压。</p>
+<figure>
+<img src="figures/debounce-timing.svg"
+alt="图 2 双边沿消抖与灯翻转（计算时序）" />
+<figcaption aria-hidden="true">图 2
+双边沿消抖与灯翻转（计算时序）</figcaption>
+</figure>
+<p>按图 2 计算，10 ms 和 12 ms 的边沿都被后续边沿覆盖。16 ms
+后再无边沿，35 ms 的差值为 19，36 ms 才达到 20
+并确认按下。释放段最后一次边沿在 51 ms，71 ms 确认释放。释放后 LED
+仍亮，下一次确认按下才会熄灭。</p>
+<p>程序沿用复位时 4 MHz 的 MSIS 和默认分频。<code>HAL_Init()</code> 选
+HCLK 作为 SysTick 时钟，<code>HAL_InitTick()</code> 按默认 1 kHz
+时基设置 SysTick。标称计数周期是 4000 个 HCLK，重装值为
+3999，<code>SysTick_Handler()</code> 每次调用
+<code>HAL_IncTick()</code>。阈值 20 以 1 ms tick
+为单位，示波器量到的是最后一个 PC13 可见边沿到 PB7 翻转的时间，受 tick
+量化、时钟精度和处理延迟影响。软件与板载 RC 的时间效果分别观察。</p>
+<h2 id="对照关键配置">3 对照关键配置</h2>
+<p>表 1 本实验使用的寄存器和 SDK 符号</p>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr>
+<th>功能</th>
+<th>寄存器字段</th>
+<th>HAL1 配置或读写</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>接通端口时钟</td>
+<td><code>RCC_AHB2ENR1.GPIOBEN</code>、<code>GPIOCEN</code></td>
+<td><code>__HAL_RCC_GPIOB_CLK_ENABLE()</code>、<code>__HAL_RCC_GPIOC_CLK_ENABLE()</code></td>
+</tr>
+<tr>
+<td>PC13 输入并下拉</td>
+<td><code>GPIOC_MODER[27:26] = 00</code>、<code>GPIOC_PUPDR[27:26] = 10</code></td>
+<td><code>GPIO_MODE_IT_RISING_FALLING</code>、<code>GPIO_PULLDOWN</code></td>
+</tr>
+<tr>
+<td>EXTI13 选择 C</td>
+<td><code>EXTI_EXTICR4[15:8] = 0x02</code></td>
+<td><code>HAL_GPIO_Init(GPIOC, &amp;gpio)</code></td>
+</tr>
+<tr>
+<td>两种边沿都请求 IRQ</td>
+<td><code>EXTI_RTSR1</code>、<code>EXTI_FTSR1</code>、<code>EXTI_IMR1</code>
+的位 13 置 1</td>
+<td><code>GPIO_MODE_IT_RISING_FALLING</code></td>
+</tr>
+<tr>
+<td>读与清边沿挂起</td>
+<td><code>EXTI_RPR1</code>、<code>EXTI_FPR1</code> 的位 13。写 1
+清对应位</td>
+<td><code>HAL_GPIO_EXTI_IRQHandler(GPIO_PIN_13)</code>
+分开处理两种边沿</td>
+</tr>
+<tr>
+<td>读输入与翻转输出</td>
+<td><code>GPIOC_IDR</code> 位 13、<code>GPIOB_ODR</code> 位
+7、<code>GPIOB_BSRR</code></td>
+<td><code>HAL_GPIO_ReadPin()</code>、<code>HAL_GPIO_TogglePin()</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>GPIO_PIN_13</code> 是位掩码
+<code>0x2000</code>。<code>EXTI13_IRQn</code> 是 CMSIS 中编号为 24
+的外部中断，两者分别用于线路位掩码和 NVIC 入口。<code>RPR1</code> 和
+<code>FPR1</code> 用写 1
+清除指定标志，调试时应观察，不要用读改写的方法清它们。</p>
+<h2 id="初始化与关键程序">4 初始化与关键程序</h2>
+<p><code>main()</code> 先检查
+<code>HAL_Init()</code>。失败时停在空循环，可在调试器中查看返回值。成功后开端口时钟，先将
+PB7 输出锁存值置低，再配置推挽输出，确保灯从熄灭起步。接着配置 PC13
+为双边沿中断输入。程序清除 EXTI 两种挂起位，再清 NVIC
+挂起，读取开机电平作为初始稳定状态，最后才使能
+<code>EXTI13_IRQn</code>。若复位时 B1
+被按住，这个初始高电平不会增加按压计数。释放稳定后才能接收下一次按下。</p>
+<p>程序清单 1 配置输出和按键输入（<code>project/Core/main.c</code>）</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">void</span> Board_GPIO_Init<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a>    GPIO_InitTypeDef gpio <span class="op">=</span> <span class="op">{</span><span class="dv">0</span><span class="op">};</span></span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a>    __HAL_RCC_GPIOB_CLK_ENABLE<span class="op">();</span></span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a>    __HAL_RCC_GPIOC_CLK_ENABLE<span class="op">();</span></span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a>    HAL_NVIC_DisableIRQ<span class="op">(</span>EXTI13_IRQn<span class="op">);</span></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>    HAL_GPIO_WritePin<span class="op">(</span>LED_PORT<span class="op">,</span> LED_PIN<span class="op">,</span> GPIO_PIN_RESET<span class="op">);</span></span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>    gpio<span class="op">.</span>Pin <span class="op">=</span> LED_PIN<span class="op">;</span></span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a>    gpio<span class="op">.</span>Mode <span class="op">=</span> GPIO_MODE_OUTPUT_PP<span class="op">;</span></span>
+<span id="cb1-12"><a href="#cb1-12" aria-hidden="true" tabindex="-1"></a>    gpio<span class="op">.</span>Pull <span class="op">=</span> GPIO_NOPULL<span class="op">;</span></span>
+<span id="cb1-13"><a href="#cb1-13" aria-hidden="true" tabindex="-1"></a>    gpio<span class="op">.</span>Speed <span class="op">=</span> GPIO_SPEED_FREQ_LOW<span class="op">;</span></span>
+<span id="cb1-14"><a href="#cb1-14" aria-hidden="true" tabindex="-1"></a>    HAL_GPIO_Init<span class="op">(</span>LED_PORT<span class="op">,</span> <span class="op">&amp;</span>gpio<span class="op">);</span></span>
+<span id="cb1-15"><a href="#cb1-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-16"><a href="#cb1-16" aria-hidden="true" tabindex="-1"></a>    gpio<span class="op">.</span>Pin <span class="op">=</span> BUTTON_PIN<span class="op">;</span></span>
+<span id="cb1-17"><a href="#cb1-17" aria-hidden="true" tabindex="-1"></a>    gpio<span class="op">.</span>Mode <span class="op">=</span> GPIO_MODE_IT_RISING_FALLING<span class="op">;</span></span>
+<span id="cb1-18"><a href="#cb1-18" aria-hidden="true" tabindex="-1"></a>    gpio<span class="op">.</span>Pull <span class="op">=</span> GPIO_PULLDOWN<span class="op">;</span></span>
+<span id="cb1-19"><a href="#cb1-19" aria-hidden="true" tabindex="-1"></a>    HAL_GPIO_Init<span class="op">(</span>BUTTON_PORT<span class="op">,</span> <span class="op">&amp;</span>gpio<span class="op">);</span></span>
+<span id="cb1-20"><a href="#cb1-20" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>程序清单 2 中断入口及两种回调（<code>project/Core/main.c</code>）</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="dt">static</span> <span class="dt">void</span> Record_Button_Edge<span class="op">(</span><span class="dt">uint16_t</span> pin<span class="op">)</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">(</span>pin <span class="op">==</span> BUTTON_PIN<span class="op">)</span> <span class="op">{</span></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a>        last_edge_ms <span class="op">=</span> HAL_GetTick<span class="op">();</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>        <span class="op">++</span>g_exti_callback_count<span class="op">;</span></span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb2-7"><a href="#cb2-7" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-8"><a href="#cb2-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> EXTI13_IRQHandler<span class="op">(</span><span class="dt">void</span><span class="op">)</span></span>
+<span id="cb2-10"><a href="#cb2-10" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-11"><a href="#cb2-11" aria-hidden="true" tabindex="-1"></a>    HAL_GPIO_EXTI_IRQHandler<span class="op">(</span>BUTTON_PIN<span class="op">);</span></span>
+<span id="cb2-12"><a href="#cb2-12" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-13"><a href="#cb2-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-14"><a href="#cb2-14" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> HAL_GPIO_EXTI_Rising_Callback<span class="op">(</span><span class="dt">uint16_t</span> pin<span class="op">)</span></span>
+<span id="cb2-15"><a href="#cb2-15" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-16"><a href="#cb2-16" aria-hidden="true" tabindex="-1"></a>    Record_Button_Edge<span class="op">(</span>pin<span class="op">);</span></span>
+<span id="cb2-17"><a href="#cb2-17" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span>
+<span id="cb2-18"><a href="#cb2-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" aria-hidden="true" tabindex="-1"></a><span class="dt">void</span> HAL_GPIO_EXTI_Falling_Callback<span class="op">(</span><span class="dt">uint16_t</span> pin<span class="op">)</span></span>
+<span id="cb2-20"><a href="#cb2-20" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb2-21"><a href="#cb2-21" aria-hidden="true" tabindex="-1"></a>    Record_Button_Edge<span class="op">(</span>pin<span class="op">);</span></span>
+<span id="cb2-22"><a href="#cb2-22" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p>HAL1 的 GPIO 中断处理函数在调用回调前清对应的挂起位。两个回调共享
+<code>Record_Button_Edge()</code>，只写最新边沿时间和回调计数。<code>g_exti_callback_count</code>
+统计实际执行的回调，同一边沿类型的多个物理跳变可能合并在一个挂起位中。SysTick
+优先级为 4，EXTI13 为
+5，数值较小者优先。中断内保持短小，让时基继续运行。</p>
+<p>程序清单 3 清挂起并启用 NVIC（<code>project/Core/main.c</code>）</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>    __HAL_GPIO_EXTI_CLEAR_IT<span class="op">(</span>BUTTON_PIN<span class="op">);</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a>    __DSB<span class="op">();</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>    HAL_NVIC_ClearPendingIRQ<span class="op">(</span>EXTI13_IRQn<span class="op">);</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>    <span class="dt">bool</span> stable_high <span class="op">=</span> HAL_GPIO_ReadPin<span class="op">(</span>BUTTON_PORT<span class="op">,</span> BUTTON_PIN<span class="op">)</span> <span class="op">==</span> GPIO_PIN_SET<span class="op">;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>    last_edge_ms <span class="op">=</span> HAL_GetTick<span class="op">();</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>    HAL_NVIC_SetPriority<span class="op">(</span>EXTI13_IRQn<span class="op">,</span> <span class="dv">5</span><span class="bu">U</span><span class="op">,</span> <span class="dv">0</span><span class="bu">U</span><span class="op">);</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>    HAL_NVIC_EnableIRQ<span class="op">(</span>EXTI13_IRQn<span class="op">);</span></span></code></pre></div>
+<p>程序清单 4
+读取一次一致的状态快照（<code>project/Core/main.c</code>）</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> <span class="op">(;;)</span> <span class="op">{</span></span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>        <span class="co">/* Keep the tick, ISR timestamp and pin sample in one short snapshot. */</span></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a>        <span class="dt">const</span> <span class="dt">uint32_t</span> primask <span class="op">=</span> __get_PRIMASK<span class="op">();</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>        __disable_irq<span class="op">();</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>        <span class="dt">const</span> <span class="dt">uint32_t</span> now_ms <span class="op">=</span> HAL_GetTick<span class="op">();</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>        <span class="dt">const</span> <span class="dt">uint32_t</span> edge_ms <span class="op">=</span> last_edge_ms<span class="op">;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>        <span class="dt">const</span> <span class="dt">bool</span> pin_high <span class="op">=</span> HAL_GPIO_ReadPin<span class="op">(</span>BUTTON_PORT<span class="op">,</span> BUTTON_PIN<span class="op">)</span> <span class="op">==</span> GPIO_PIN_SET<span class="op">;</span></span>
+<span id="cb4-8"><a href="#cb4-8" aria-hidden="true" tabindex="-1"></a>        <span class="dt">const</span> <span class="dt">bool</span> edge_pending <span class="op">=</span> __HAL_GPIO_EXTI_GET_IT<span class="op">(</span>BUTTON_PIN<span class="op">);</span></span>
+<span id="cb4-9"><a href="#cb4-9" aria-hidden="true" tabindex="-1"></a>        __set_PRIMASK<span class="op">(</span>primask<span class="op">);</span></span>
+<span id="cb4-10"><a href="#cb4-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-11"><a href="#cb4-11" aria-hidden="true" tabindex="-1"></a>        <span class="cf">if</span> <span class="op">(!</span>edge_pending <span class="op">&amp;&amp;</span> Button_Confirm<span class="op">(&amp;</span>stable_high<span class="op">,</span> pin_high<span class="op">,</span> now_ms<span class="op">,</span> edge_ms<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb4-12"><a href="#cb4-12" aria-hidden="true" tabindex="-1"></a>            HAL_GPIO_TogglePin<span class="op">(</span>LED_PORT<span class="op">,</span> LED_PIN<span class="op">);</span></span>
+<span id="cb4-13"><a href="#cb4-13" aria-hidden="true" tabindex="-1"></a>            <span class="op">++</span>g_press_count<span class="op">;</span></span>
+<span id="cb4-14"><a href="#cb4-14" aria-hidden="true" tabindex="-1"></a>        <span class="op">}</span></span>
+<span id="cb4-15"><a href="#cb4-15" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span></code></pre></div>
+<p><code>last_edge_ms</code> 由中断更新，<code>volatile</code>
+让主循环确实读取该值。为了让
+tick、上次边沿时间和电平相互对应，主循环短暂屏蔽普通中断，再恢复原来的
+PRIMASK。屏蔽期间 EXTI
+硬件仍能置挂起位。如果采样后读到挂起位，本轮结果丢弃，由中断处理新边沿后再取样。LED
+只由主循环修改，按压计数也只在这里递增。</p>
+<p>程序清单 5
+确认电平与决定是否翻灯（<code>project/Core/button.c</code>）</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode c"><code class="sourceCode c"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="dt">bool</span> Button_Confirm<span class="op">(</span><span class="dt">bool</span> <span class="op">*</span>stable_high<span class="op">,</span> <span class="dt">bool</span> pin_high<span class="op">,</span></span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>                    <span class="dt">uint32_t</span> now_ms<span class="op">,</span> <span class="dt">uint32_t</span> edge_ms<span class="op">)</span></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a><span class="op">{</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> <span class="op">((</span>pin_high <span class="op">==</span> <span class="op">*</span>stable_high<span class="op">)</span> <span class="op">||</span> <span class="op">(</span>now_ms <span class="op">-</span> edge_ms <span class="op">&lt;</span> BUTTON_DEBOUNCE_MS<span class="op">))</span> <span class="op">{</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="kw">false</span><span class="op">;</span></span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="op">}</span></span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a>    <span class="op">*</span>stable_high <span class="op">=</span> pin_high<span class="op">;</span></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pin_high<span class="op">;</span></span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a><span class="op">}</span></span></code></pre></div>
+<p><code>stable_high</code> 由主循环持有。<code>Button_Confirm()</code>
+通过指针更新它，返回 <code>true</code>
+表示一次确认按下。<code>now_ms - edge_ms</code> 使用
+<code>uint32_t</code> 的模运算，正常工作时即使跨过
+<code>UINT32_MAX</code> 也能测出短间隔。本例在正常运行时持续轮询，完整的
+32 位 tick 周期约 49.7 天，不能据这两个计数器区分跨越整周期的间隔。</p>
+<h2 id="在-keil-mdk-5-构建与实验">5 在 Keil MDK 5 构建与实验</h2>
+<h3 id="打开工程和下载">5.1 打开工程和下载</h3>
+<ol type="1">
+<li>安装 Keil MDK 5、Arm Compiler 6.19 或支持 Cortex-M33 和 Arm
+语法汇编的 AC6，以及 <code>Keil.STM32U5xx_DFP.3.2.0</code>。在 Pack
+Installer 核对器件 <code>STM32U575ZITxQ</code>。工程使用 HAL1
+v1.6.3，配套的 CMSIS、启动文件和驱动置于
+<code>project/Drivers</code>。</li>
+<li>打开 <code>project/MDK-ARM/GPIO_EXTI.uvprojx</code>，选择
+<code>GPIO_EXTI</code>。在 Options for Target 核对 Arm Compiler
+6、C99、宏 <code>STM32U575xx</code> 和 <code>USE_HAL_DRIVER</code>。在
+Asm 页核对 <code>armasm (Arm Syntax)</code>，并在 Linker 页关闭 Use
+Memory Layout from Target Dialog，选
+<code>GPIO_EXTI.sct</code>。启动汇编只编入一份。</li>
+<li>工程以 <code>TZEN=0</code> 的单镜像方式从用户 Flash
+启动。确认板处于这个实验前提。点击 Rebuild，保存实际编译器版本和 Build
+Output。检查生成的 AXF 与 map。复位向量应在
+<code>0x08000000</code>，读写段和栈堆放在从 <code>0x20000000</code>
+开始的 192 KiB SRAM1。若无 map，在 Listing 页启用 Linker Listing
+后重建。</li>
+<li>确认 JP6 为 1–2，USB 数据线连接 STLINK-V3E 的 CN1，板上默认供电为
+3.3 V。在 Debug 页选 ST-Link Debugger 和 SWD，Utilities 的 Flash
+Download 选择从 <code>0x08000000</code> 起覆盖 2 MiB 的 STM32U575 内部
+Flash 下载算法，并启用 Reset and Run。下载后复位并运行。</li>
+</ol>
+<h3 id="先观察电平再统计按压">5.2 先观察电平再统计按压</h3>
+<ol type="1">
+<li>初次运行先在 <code>Board_GPIO_Init()</code> 返回后观察
+<code>GPIOC_IDR</code> 的位 13。分别在松开和按住 B1 时读，应得到 0 和
+1。可在 <code>EXTI13_IRQHandler()</code>
+入口短暂停一次，确认向量进到了应用函数。随后清除断点并复位，运行以下计数测试。</li>
+<li>把 <code>g_press_count</code>、<code>g_exti_callback_count</code>
+加入 Watch。释放 B1 并复位，连续缓慢按放 10 次，每次高、低各保持至少 100
+ms，再暂停读取。预期每按一次灯翻转，<code>g_press_count</code> 增加
+10，灯回到初始熄灭。<code>g_exti_callback_count</code>
+记录上下两种边沿，干净波形时预期增加 20，有可见抖动时可能更多。</li>
+<li>按住约 2 秒再松开，预期整个操作只多计一次。再做一次按住 B1
+复位。等程序运行后松开，预期计数仍为 0。再次按压时计数变为 1。</li>
+<li>有双通道仪器时，在 CN11 接 CH1 至 pin 23（PC13）、CH2 至 pin
+21（PB7），两探头共接 pin 22（GND），在 3.3 V 板上以 PC13
+上升沿触发，起始用 5
+ms/div。采用高阻探头，记录从最后一次可见输入边沿到输出翻转的时间。在自由运行时采样，断点会改变时序。确认探针与连接器位置后再通电。</li>
+<li>如果板载 RC 已滤掉可见抖动，用 <code>evidence/test_button.c</code>
+的合成时间戳复现抖动与短脉冲。它调用同一份
+<code>Button_Confirm()</code>，逐个检查 19 和 20
+tick、长按、带抖动释放、短脉冲、按住复位所用的初始条件与 tick
+回绕。</li>
+</ol>
+<h3 id="根据观察定位故障">5.3 根据观察定位故障</h3>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr>
+<th>观察</th>
+<th>优先检查</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1 动作时 <code>IDR</code> 位 13 不变</td>
+<td>板型、SB58/SB59、电源、GPIOC 时钟和下拉输入</td>
+</tr>
+<tr>
+<td><code>IDR</code> 变化，回调计数不变</td>
+<td>EXTI13
+端口选择和两种触发位、<code>IMR1</code>、NVIC、启动入口符号</td>
+</tr>
+<tr>
+<td>回调有计数，按压始终为零</td>
+<td><code>SysTick_Handler</code> 是否执行，<code>uwTick</code>
+是否递增，是否在暂停状态</td>
+</tr>
+<tr>
+<td>按压计数正确而灯不变</td>
+<td>检查 PB7 的 <code>MODER</code>、<code>ODR</code> 与 LD2
+是否对应实物</td>
+</tr>
+</tbody>
+</table>
+<p>本次通过主机算法用例、HAL1 接口语法、工程路径与向量静态检查。MDK
+目标编译、链接、下载、示波器数据需在装有工具链和连接实板后填写。<a
+href="evidence/verification.md">验证记录</a></p>
+<h2 id="练习">6 练习</h2>
+<ol type="1">
+<li>若 4 MHz 的 HCLK 改为 8 MHz，1 kHz tick 对应的重装值是多少？20 个
+tick 的消抖门限有何变化？答题要点是
+<code>8000000 / 1000 - 1 = 7999</code>，时基仍为 1 ms，软件门限仍为 20
+个 tick。改时钟后需要重新配置 SysTick。</li>
+<li>如果只打开上升沿，释放抖动中一段较长低电平可能在哪个环节提前被确认？画出低、高、低三次电平变化，比较最后边沿时间与释放确认的时间。答题要点是下降沿不再刷新时间戳，释放时等待窗口可能从旧上升沿算起，导致尚未稳定的低电平使程序重新接受按下。</li>
+</ol>
+<h2 id="资料定位">7 资料定位</h2>
+<ul>
+<li>ST UM2861 Rev 10，§7.4.1 供电、§7.5–7.6 LED 与 B1、表 19 探头引脚。
+<a
+href="https://www.st.com/resource/en/user_manual/dm00789949.pdf">Nucleo-144
+用户手册</a></li>
+<li>ST DS13737 Rev 10，图 18 LQFP144_SMPS 引脚。 <a
+href="https://www.st.com/en/microcontrollers-microprocessors/stm32u575-585/documentation.html">STM32U575
+器件资料</a></li>
+<li>ST RM0456 Rev 7，§11.4.9 SYSCLK、§13.4 GPIO 寄存器、§22 NVIC
+向量表、§23.3.2 EXTI 选择器、§23.6.1–23.6.5 和 §23.6.8–23.6.11 EXTI
+寄存器。 <a
+href="https://www.st.com/en/microcontrollers-microprocessors/stm32u5-series/documentation.html">STM32U5
+参考手册入口</a></li>
+<li>ST ES0499 Rev 12，§2.2.1 提示 LQFP 封装的 PC13 跳变可能扰动 LSE
+晶振，§2.2 的 EXTI LOCK 勘误涉及权限锁定。本实验采用 MSIS/HCLK
+时基，未启用 LSE，也未设置 EXTI 锁定。 <a
+href="https://www.st.com/content/st_com/en/technical-documents/es0499-stm32u575xx-and-stm32u585xx-device-errata-stmicroelectronics.html">STM32U575
+勘误</a></li>
+<li>HAL1 v1.6.3，<code>stm32u5xx_hal_gpio.c</code> 的
+<code>HAL_GPIO_Init</code>、<code>HAL_GPIO_EXTI_IRQHandler</code>、<code>HAL_GPIO_ReadPin</code>、<code>HAL_GPIO_TogglePin</code>，<code>stm32u5xx_hal_gpio.h</code>
+的挂起位读清宏，<code>stm32u5xx_hal.c</code> 的
+<code>HAL_Init</code>、<code>HAL_InitTick</code> 和
+<code>HAL_GetTick</code>。CMSIS 设备头 <code>stm32u575xx.h</code> 的
+<code>EXTI13_IRQn</code>，以及 <code>startup_stm32u575xx.s</code> 的
+EXTI13 和 SysTick 向量。 <a
+href="https://github.com/STMicroelectronics/stm32u5xx-hal-driver">ST
+HAL1 驱动</a></li>
+<li>Keil 器件选择与汇编选项。 <a
+href="https://www.keil.arm.com/devices/stmicroelectronics-stm32u575zitxq/features/">STM32U575ZITxQ</a>
+<a href="https://www.keil.com/support/man/docs/uv4/uv4_dg_adsas.asp">Asm
+设置</a></li>
+</ul>
+</body>
+</html>

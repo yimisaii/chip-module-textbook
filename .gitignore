@@ -1,0 +1,10 @@
+__pycache__/
+/private/
+**/build/
+**/build-*/
+**/render/
+**/.work/
+/examples/stm32u575-gpio-exti/project/Drivers/
+/examples/stm32u575-gpio-exti/project/MDK-ARM/Objects/
+/examples/stm32u575-gpio-exti/project/MDK-ARM/Listings/
+/examples/stm32u575-gpio-exti/evidence/work/
